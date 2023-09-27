@@ -4,6 +4,7 @@ import urllib
 import warnings
 from typing import Any, Union, List
 
+import numpy as np
 import torch
 from PIL import Image
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
@@ -18,8 +19,8 @@ try:
 except ImportError:
     BICUBIC = Image.BICUBIC
 
-
-if torch.__version__.split(".") < ["1", "7", "1"]:
+from packaging import version
+if version.parse(torch.__version__) < version.parse("1.7.1"):
     warnings.warn("PyTorch version 1.7.1 or higher is recommended")
 
 
