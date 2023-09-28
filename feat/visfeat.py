@@ -1,3 +1,4 @@
+import gc
 import os
 import time
 
@@ -99,11 +100,15 @@ def get_videos(vid_name, read_path, cen_trans):
                 if len(all_frames) % 1000 == 0:
                     print('video %s - transformed %d frames!' % (vid_name, len(all_frames)))
 
-    return np.array(all_frames)
+    np_frames = np.array(all_frames)
+    del all_frames
+    unreachable = gc.collect()
+    print('Unreachable Objects Count: %d' % unreachable)
+    return np_frames
 
 
 def extract_video_clip_features():
-    max_len = 1500  # the maximum number of video frames that GPU can process
+    max_len = 2000  # the maximum number of video frames that GPU can process
     dataset_dir = '/data/error_dataset'
     features_dir = os.path.join(dataset_dir, 'features')
     save_path = os.path.join(features_dir, 'CLIP')
@@ -160,6 +165,9 @@ def extract_video_clip_features():
         vidinsfeat = np.array(vidinsfeat)  # shape = (T,512)
 
         assert (len(vidinsfeat) == len(vidone))
+        del vidone
+        unreachable = gc.collect()
+        print('Unreachable Objects Count: %d' % unreachable)
         if not os.path.exists(save_path):
             os.mkdir(save_path)
         np.save(os.path.join(save_path, video_ids[vid] + '.npy'), vidinsfeat)
