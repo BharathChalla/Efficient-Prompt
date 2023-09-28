@@ -114,10 +114,6 @@ def extract_video_clip_features():
     all_videos.sort()
     cen_trans = transform_center()
 
-    num_of_videos = len(all_videos)
-    half_num_of_videos = num_of_videos // 2
-    start_idx = 0
-
     # load CLIP pre-trained parameters
     device = 'cuda'
     # model = load_clip_text_and_image()
@@ -127,7 +123,11 @@ def extract_video_clip_features():
     for clip_param in clip_model.parameters():
         clip_param.requires_grad = False
 
-    for vid in range(start_idx, len(all_videos)):
+    num_of_videos = len(all_videos)
+    start_idx = 0
+    end_idx = num_of_videos
+
+    for vid in range(start_idx, end_idx):
         features_path = os.path.join(save_path, all_videos[vid][:-4] + '.npy')
         video_name = all_videos[vid]
         if os.path.exists(features_path):

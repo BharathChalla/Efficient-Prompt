@@ -15,9 +15,8 @@ pip install transformers sentence-transformers
 
 
 # Running from the command line
-export PYTHONPATH=${PYTHONPATH}:src
-export PYTHONUNBUFFERED=1
-mkdir -p logs
-
 cd feat
+mkdir -p ../logs
+export PYTHONPATH=${PYTHONPATH}:../src
+export PYTHONUNBUFFERED=1
 python visfeat.py 2>&1 | tee ../logs/visfeat.log
