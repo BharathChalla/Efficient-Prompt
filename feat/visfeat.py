@@ -3,6 +3,7 @@ import time
 
 import cv2
 import numpy as np
+import pandas as pd
 import torch
 from PIL import Image
 from torchvision.transforms import Resize, Compose, ToTensor, Normalize, CenterCrop, InterpolationMode
@@ -102,7 +103,7 @@ def get_videos(vid_name, read_path, cen_trans):
 
 
 def extract_video_clip_features():
-    max_len = 1000  # the maximum number of video frames that GPU can process
+    max_len = 1500  # the maximum number of video frames that GPU can process
     dataset_dir = '/data/error_dataset'
     features_dir = os.path.join(dataset_dir, 'features')
     save_path = os.path.join(features_dir, 'CLIP')
@@ -113,6 +114,12 @@ def extract_video_clip_features():
     all_videos = os.listdir()
     all_videos.sort()
     cen_trans = transform_center()
+
+    df = pd.read_csv(os.path.join(dataset_dir, 'annotations', 'video_durations.csv'))
+    df = df.sort_values(by=['duration'])
+
+    video_ids = list(df['recording_id'])
+
 
     # load CLIP pre-trained parameters
     device = 'cuda'
@@ -129,7 +136,8 @@ def extract_video_clip_features():
 
     for vid in range(start_idx, end_idx):
         features_path = os.path.join(save_path, all_videos[vid][:-4] + '.npy')
-        video_name = all_videos[vid]
+        # video_name = all_videos[vid]
+        video_name = video_ids[vid] + '_360p.mp4'
         if os.path.exists(features_path):
             print('video %d - %s has been done!' % (vid, video_name))
             continue
