@@ -12,3 +12,13 @@ pip install tensorboardX einops tqdm
 ## Other Dependencies
 pip install opencv-python pandas numpy pytorchvideo timm ftfy
 pip install transformers sentence-transformers
+
+
+# Running from the command line
+cd src
+PYTHONPATH=${PYTHONPATH}:. python ../feat/visfeat.py
+
+
+cd feat
+mkdir -p ../logs
+PYTHONPATH=${PYTHONPATH}:../src python visfeat.py 2>&1 | tee ../logs/visfeat.log
