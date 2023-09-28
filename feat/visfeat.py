@@ -121,7 +121,7 @@ def extract_video_clip_features():
     cen_trans = transform_center()
 
     df = pd.read_csv(os.path.join(dataset_dir, 'annotations', 'video_durations.csv'))
-    df = df.sort_values(by=['duration'])
+    df = df.sort_values(by=['duration'], ascending=True)
 
     video_ids = list(df['recording_id'])
 
@@ -145,7 +145,8 @@ def extract_video_clip_features():
     for vid in range(start_idx, end_idx):
         # video_name = all_videos[vid]
         video_name = video_ids[vid] + '_360p.mp4'
-        features_path = os.path.join(save_path, video_ids[vid] + '.npy')
+        feat_name = video_ids[vid] + '_360p'
+        features_path = os.path.join(save_path, feat_name + '.npy')
         if os.path.exists(features_path):
             print('video %d - %s has been done!' % (vid, video_name))
             continue
@@ -170,7 +171,7 @@ def extract_video_clip_features():
         print('Unreachable Objects Count: %d' % unreachable)
         if not os.path.exists(save_path):
             os.mkdir(save_path)
-        np.save(os.path.join(save_path, video_ids[vid] + '.npy'), vidinsfeat)
+        np.save(os.path.join(save_path, feat_name + '.npy'), vidinsfeat)
 
         print('visual features of %d video have been done!' % vid)
         video_feat_end_time = time.time()
