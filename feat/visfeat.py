@@ -51,7 +51,7 @@ def load_clip_model(model_name):
     print("Loading CLIP Model Name:", model_name)
     model = clip.load(model_name, jit=False)[0].eval()
 
-    models_dir = os.path.expanduser("~/.cache/torch/clip")
+    models_dir = os.path.expanduser("~/.cache/clip")
     print("Model download directory:", models_dir)
 
     return model
@@ -79,25 +79,30 @@ def get_videos(vid_name, read_path, cen_trans):
         print('Video is not opened! {}'.format(videoins))
     else:
         fps = vvv.get(cv2.CAP_PROP_FPS)
-        totalFrameNumber = vvv.get(cv2.CAP_PROP_FRAME_COUNT)
-        size = (int(vvv.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vvv.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-        second = totalFrameNumber // fps
-
-        if totalFrameNumber != 0:
-            for _ in range(int(totalFrameNumber)):
+        total_frame_number = vvv.get(cv2.CAP_PROP_FRAME_COUNT)
+        frame_size = (int(vvv.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vvv.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        duration = total_frame_number // fps
+        print(
+            'video %s - fps: %.2f, total_frame_number: %d, frame_size: %s, duration: %d' %
+            (vid_name, fps, total_frame_number, frame_size, duration)
+        )
+        # ToDo: uncomment the following line to Debug for Multi Model Instances on 1 GPU
+        # total_frame_number = 2000
+        if total_frame_number != 0:
+            for _ in range(int(total_frame_number)):
                 rval, frame = vvv.read()
                 if frame is not None:
                     img = Image.fromarray(frame.astype('uint8')).convert('RGB')
                     img_trans = cen_trans(img).numpy()
                     all_frames.append(img_trans)
-                if len(all_frames) % 10000 == 0:
+                if len(all_frames) % 1000 == 0:
                     print('video %s - transformed %d frames!' % (vid_name, len(all_frames)))
 
     return np.array(all_frames)
 
 
 def extract_video_clip_features():
-    max_len = 2000  # the maximum number of video frames that GPU can process
+    max_len = 1000  # the maximum number of video frames that GPU can process
     dataset_dir = '/data/error_dataset'
     features_dir = os.path.join(dataset_dir, 'features')
     save_path = os.path.join(features_dir, 'CLIP')
@@ -116,11 +121,11 @@ def extract_video_clip_features():
     # load CLIP pre-trained parameters
     device = 'cuda'
     # model = load_clip_text_and_image()
-    clip_model = load_clip_model('ViT-B/16')
+    clip_model = load_clip_cpu('ViT-B/16')
     clip_model.to(device)
-    # for paramclip in clip_model.parameters():
-    #     paramclip.requires_grad = False
-    clip_model.eval()
+    # clip_model.eval()
+    for clip_param in clip_model.parameters():
+        clip_param.requires_grad = False
 
     for vid in range(start_idx, len(all_videos)):
         features_path = os.path.join(save_path, all_videos[vid][:-4] + '.npy')
