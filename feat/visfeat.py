@@ -131,22 +131,25 @@ def extract_video_clip_features():
         clip_param.requires_grad = False
 
     num_of_videos = len(all_videos)
-    start_idx = 0
-    end_idx = num_of_videos
+    # start_idx = 0
+    # end_idx = num_of_videos
+
+    start_idx = 150
+    end_idx = 300
 
     for vid in range(start_idx, end_idx):
-        features_path = os.path.join(save_path, all_videos[vid][:-4] + '.npy')
         # video_name = all_videos[vid]
         video_name = video_ids[vid] + '_360p.mp4'
+        features_path = os.path.join(save_path, video_ids[vid] + '.npy')
         if os.path.exists(features_path):
             print('video %d - %s has been done!' % (vid, video_name))
             continue
         print('transform video %d - %s video has been started!' % (vid, video_name))
         video_load_start_time = time.time()
-        vidone = get_videos(all_videos[vid], data_path, cen_trans)  # shape = (T,3,224,224)
+        vidone = get_videos(video_name, data_path, cen_trans)  # shape = (T,3,224,224)
         video_load_end_time = time.time()
         print('transform video %d - %s video has been done!' % (vid, video_name))
-        print('video %s frames transform time: %.2fs' % (all_videos[vid], video_load_end_time - video_load_start_time))
+        print('video %s frames transform time: %.2fs' % (video_name, video_load_end_time - video_load_start_time))
 
         video_feat_start_time = time.time()
         vidinsfeat = []
@@ -159,13 +162,13 @@ def extract_video_clip_features():
         assert (len(vidinsfeat) == len(vidone))
         if not os.path.exists(save_path):
             os.mkdir(save_path)
-        np.save(os.path.join(save_path, all_videos[vid][:-4] + '.npy'), vidinsfeat)
+        np.save(os.path.join(save_path, video_ids[vid] + '.npy'), vidinsfeat)
 
         print('visual features of %d video have been done!' % vid)
         video_feat_end_time = time.time()
-        print('video %s feature extract time: %.2fs' % (all_videos[vid], video_feat_end_time - video_feat_start_time))
+        print('video %s feature extract time: %.2fs' % (video_name, video_feat_end_time - video_feat_start_time))
 
-    print('all %d visual features have been done!' % len(all_videos))
+    print('all %d visual features have been done!' % len(video_ids))
     pass
 
 
